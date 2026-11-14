@@ -168,3 +168,117 @@ O sistema não identifica pessoas; ele detecta e conta objetos. A opção `--ano
 - guarda-chuva é apenas um indício de chuva, pois também pode ser usado contra o sol;
 - a classe `ponto_de_onibus` não foi treinada por falta de exemplos consistentes;
 - as métricas devem ser interpretadas como prova de conceito.
+
+## Como executar pelo GitHub no Google Colab
+
+### 1. Baixar o projeto
+
+Baixe o repositório pelo GitHub em **Code > Download ZIP** e extraia o arquivo. A pasta extraída deve se chamar:
+
+```text
+ONIBUS_CHUVA_SP
+```
+
+### 2. Enviar a pasta para o Colab
+
+Abra o Google Colab, crie um notebook e envie a pasta `ONIBUS_CHUVA_SP` para o diretório `/content`. A estrutura esperada é:
+
+```text
+/content/ONIBUS_CHUVA_SP/
+├── dataset/
+├── docs/
+├── models/
+├── notebook/
+├── saídas/
+├── src/
+├── amostras/
+└── README.md
+```
+
+### 3. Abrir o notebook de avaliação
+
+Abra no Colab o arquivo:
+
+```text
+/content/ONIBUS_CHUVA_SP/notebook/avaliacao_execucao_colab.ipynb
+```
+
+Esse notebook contém somente células de código. Execute as células de cima para baixo. Ele instala as dependências, carrega `models/best.pt`, avalia o modelo, executa o vídeo e exibe o CSV gerado.
+
+### 4. Executar a demonstração
+
+Para gerar o vídeo processado, use o notebook:
+
+```text
+/content/ONIBUS_CHUVA_SP/notebook/demo_colab_onibus_chuva.ipynb
+```
+
+O notebook usa o vídeo:
+
+```text
+/content/ONIBUS_CHUVA_SP/amostras/video_ponto_onibus.mp4
+```
+
+E salva os resultados em:
+
+```text
+/content/ONIBUS_CHUVA_SP/saídas/
+```
+
+Os arquivos gerados são:
+
+```text
+avaliacao_demo.mp4
+demo_colab.mp4
+avaliacao_contagens.csv
+contagens_colab.csv
+```
+
+### 5. Executar manualmente pelo código
+
+Se necessário, também é possível executar a inferência em uma célula do Colab:
+
+```python
+!pip install -q ultralytics opencv-python-headless pandas pyyaml
+
+!python /content/ONIBUS_CHUVA_SP/src/detectar_tempo_real.py \\
+  --pesos /content/ONIBUS_CHUVA_SP/models/best.pt \\
+  --fonte /content/ONIBUS_CHUVA_SP/amostras/video_ponto_onibus.mp4 \\
+  --anonimizar \\
+  --sem-janela \\
+  --salvar-video /content/ONIBUS_CHUVA_SP/saídas/demo_manual.mp4 \\
+  --csv /content/ONIBUS_CHUVA_SP/saídas/contagens_manual.csv
+```
+
+### 6. Avaliar o modelo sem treinar novamente
+
+O arquivo `models/best.pt` já contém o modelo treinado. Para avaliar o modelo no conjunto de teste:
+
+```python
+from ultralytics import YOLO
+
+modelo = YOLO('/content/ONIBUS_CHUVA_SP/models/best.pt')
+metricas = modelo.val(
+    data='/content/ONIBUS_CHUVA_SP/dataset/data.yaml',
+    split='test',
+    imgsz=640,
+    plots=True
+)
+
+print(f'Precisão: {metricas.box.mp * 100:.2f}%')
+print(f'Recall: {metricas.box.mr * 100:.2f}%')
+print(f'mAP50: {metricas.box.map50 * 100:.2f}%')
+print(f'mAP50-95: {metricas.box.map * 100:.2f}%')
+```
+
+### 7. Onde ficam os resultados
+
+Os arquivos principais da entrega ficam em:
+
+```text
+models/best.pt                         modelo treinado
+dataset/                               imagens e anotações
+docs/metricas/                         gráficos e imagens do relatório
+saídas/                                vídeos e CSVs gerados
+notebook/avaliacao_execucao_colab.ipynb notebook somente com código
+```
