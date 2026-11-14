@@ -1,0 +1,10 @@
+path: .
+train: train/images
+val: valid/images
+test: test/images
+nc: 4
+names: [onibus, pessoa, guarda_chuva, cadeira_de_rodas]
+
+# Origem: Roboflow Universe
+# Licenca declarada pelo dataset: CC BY 4.0
+# Fonte: https://universe.roboflow.com/cssio-fiap/deteccaoprojetotransporteclima
