@@ -10,8 +10,6 @@ Projeto de detecção de objetos em cenas de transporte coletivo usando YOLO e O
 | **PREENCHER** | **PREENCHER** |
 | **PREENCHER** | **PREENCHER** |
 
-> Substitua os campos acima antes da entrega.
-
 ## Classes
 
 O modelo usa quatro classes:
