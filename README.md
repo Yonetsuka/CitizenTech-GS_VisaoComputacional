@@ -150,7 +150,7 @@ Preencha esta tabela com os valores reais gerados pelo notebook:
 
 | Avaliação | Precisão | Recall | mAP50 | mAP50-95 |
 |---|---:|---:|---:|---:|
-| `best.pt` — avaliação final | 77,67% | 79,01% | 82,97% | 56,84% |
+| `best.pt` — avaliação final | 62,99% | 60,21% | 68,41% | 38,92% |
 
 ### Interpretação das métricas
 
