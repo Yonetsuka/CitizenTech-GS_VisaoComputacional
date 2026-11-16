@@ -6,9 +6,9 @@ Projeto de detecção de objetos em cenas de transporte coletivo usando YOLO e O
 
 | Nome completo | RM |
 |---|---|
-| **PREENCHER** | **PREENCHER** |
-| **PREENCHER** | **PREENCHER** |
-| **PREENCHER** | **PREENCHER** |
+| Cássio Eid Kobayashi Yonetsuka | 99678 |
+| FIlipe Prado Menezes | 98765 |
+| Pedro Henrique Salvitti Habiru | 88166 |
 
 ## Classes
 
