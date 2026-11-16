@@ -1,286 +1,135 @@
 # Ônibus & Chuva SP — Visão Computacional
 
-Projeto de detecção de objetos em cenas de transporte coletivo usando YOLO e OpenCV. O sistema transforma detecções em informações sobre lotação, possível chuva, ônibus à vista e acessibilidade.
+Projeto de detecção de objetos em cenas de transporte coletivo usando YOLO e OpenCV. O sistema detecta ônibus, pessoas, guarda-chuvas e cadeiras de rodas e transforma as detecções em informações sobre lotação, possível chuva, ônibus à vista e acessibilidade.
 
 ## Integrantes
 
 | Nome completo | RM |
-|---|---|
+|---|---:|
 | Cássio Eid Kobayashi Yonetsuka | 99678 |
 | FIlipe Prado Menezes | 98765 |
 | Pedro Henrique Salvitti Habiru | 88166 |
 
-## Classes
-
-O modelo usa quatro classes:
+## Classes do modelo
 
 - `onibus`
 - `pessoa`
 - `guarda_chuva`
 - `cadeira_de_rodas`
 
-A classe `ponto_de_onibus` foi retirada porque não havia imagens anotadas suficientes e consistentes. O contexto do ponto é definido pelo vídeo ou câmera analisado; o modelo concentra-se nos objetos necessários para produzir as informações ao cidadão.
+A classe `ponto_de_onibus` não foi utilizada porque não havia imagens anotadas suficientes e consistentes. O contexto do ponto de ônibus é fornecido pelo vídeo analisado.
 
-## O que o sistema faz
-
-A aplicação:
-
-1. detecta objetos com um modelo YOLO treinado de forma customizada;
-2. conta ônibus, pessoas, guarda-chuvas e cadeiras de rodas;
-3. suaviza a contagem usando a mediana dos últimos quadros;
-4. classifica a lotação como baixa, média ou alta;
-5. indica possível chuva quando há guarda-chuvas suficientes;
-6. informa quando há ônibus à vista;
-7. gera alerta de acessibilidade quando detecta cadeira de rodas;
-8. pode pixelizar a parte superior das pessoas com `--anonimizar`;
-9. salva as contagens em CSV.
-
-## Estrutura
+## Estrutura do projeto
 
 ```text
-src/
-  detectar_tempo_real.py
-  regras.py
-scripts/
-  verificar_dataset.py
-  extrair_frames.py
-notebooks/
-  treinamento_onibus_chuva_github.ipynb
-dataset/
-  data.yaml
-  train/
-  valid/
-  test/
-docs/
-  DATASET.md
-  ROTEIRO_VIDEO.md
-  ESQUELETO_RELATORIO_4_CLASSES.md
-  Relatorio_Visao_Computacional_Onibus_Chuva_SP_ESQUELETO.docx
-tests/
-models/
-  best.pt                 # modelo treinado incluído
-amostras/
-  video_ponto_onibus.mp4  # vídeo original da demonstração
-saidas/
-data.yaml
-requirements.txt
+ONIBUS_CHUVA_SP/
+├── amostras/
+│   └── video_ponto_onibus.mp4
+├── dataset/
+│   ├── data.yaml
+│   ├── train/
+│   ├── valid/
+│   └── test/
+├── docs/
+│   ├── DATASET.md
+│   ├── METRICAS_FINAIS.md
+│   ├── ARTEFATOS_DEMONSTRACAO.md
+│   └── Relatorio_Visao_Computacional_Onibus_Chuva_SP_FINAL.docx
+├── models/
+│   └── best.pt
+├── notebook/
+│   └── execucao_colab.ipynb
+├── saidas/
+│   └── contagens.csv
+├── src/
+│   ├── detectar_tempo_real.py
+│   └── regras.py
+└── README.md
 ```
 
-## Dataset
+## Instalação local
 
-O dataset preparado possui 227 imagens, distribuídas em:
-
-- 170 imagens de treino;
-- 31 imagens de validação;
-- 26 imagens de teste.
-
-A fonte declarada é o Roboflow Universe, com licença CC BY 4.0:
-
-<https://universe.roboflow.com/cssio-fiap/deteccaoprojetotransporteclima>
-
-As anotações poligonais encontradas na exportação foram convertidas para caixas delimitadoras YOLO. Essa conversão deve ser revisada visualmente antes da apresentação final.
-
-Para conferir o dataset:
+É necessário ter Python 3.10 ou superior. Na raiz do projeto, execute:
 
 ```bash
-python scripts/verificar_dataset.py dataset
+python -m pip install ultralytics opencv-python-headless pandas pyyaml jupyter
 ```
 
-## Instalação
+## Execução local do vídeo
 
-```bash
-python -m pip install -r requirements.txt
-```
-
-## Treinamento no Google Colab
-
-Abra:
-
-```text
-notebooks/treinamento_onibus_chuva_github.ipynb
-```
-
-O notebook foi preparado para funcionar com o pacote no Colab e salvar os resultados no Google Drive. Ele treina, localiza o `best.pt`, avalia validação e teste, gera predições e processa um vídeo.
-
-O notebook não contém tokens ou chaves privadas. Para usar o projeto clonado do GitHub, ajuste apenas `PROJETO_DIR` para o caminho da pasta clonada no Colab.
-
-## Inferência
-
-Depois do treinamento, coloque o arquivo `best.pt` em `models/best.pt` e execute:
+Execute os comandos a partir da raiz do projeto, onde estão as pastas `dataset/`, `models/`, `src/`, `amostras/` e `saidas/`:
 
 ```bash
 python src/detectar_tempo_real.py \
   --pesos models/best.pt \
-  --fonte video.mp4 \
+  --fonte amostras/video_ponto_onibus.mp4 \
   --anonimizar \
-  --salvar-video saidas/demo.mp4 \
-  --csv saidas/contagens.csv \
-  --sem-janela
+  --sem-janela \
+  --salvar-video saidas/demo_local.mp4 \
+  --csv saidas/contagens_local.csv
 ```
 
-Com webcam local, use `--fonte 0` e retire `--sem-janela` se quiser abrir a janela:
+Os arquivos gerados serão `saidas/demo_local.mp4` e `saidas/contagens_local.csv`.
+
+Para usar uma webcam local, retire `--sem-janela` e substitua a fonte por `0`:
 
 ```bash
-python src/detectar_tempo_real.py --pesos models/best.pt --fonte 0 --anonimizar --csv saidas/contagens.csv
+python src/detectar_tempo_real.py \
+  --pesos models/best.pt \
+  --fonte 0 \
+  --anonimizar \
+  --csv saidas/contagens_webcam.csv
 ```
 
-## Testes
+## Avaliação do modelo
+
+O arquivo `models/best.pt` já contém os pesos treinados. Para avaliar no conjunto de teste, execute na raiz do projeto:
 
 ```bash
-python -m unittest discover -s tests -v
+python -c "from ultralytics import YOLO; m=YOLO('models/best.pt'); r=m.val(data='dataset/data.yaml', split='test', imgsz=640, plots=True); print(f'Precisão: {r.box.mp*100:.2f}%'); print(f'Recall: {r.box.mr*100:.2f}%'); print(f'mAP50: {r.box.map50*100:.2f}%'); print(f'mAP50-95: {r.box.map*100:.2f}%')"
 ```
 
-Os testes usam um modelo falso e vídeos sintéticos; não exigem GPU nem o arquivo `best.pt`.
+A configuração `dataset/data.yaml` usa caminhos relativos à raiz do projeto:
 
-## Artefatos de demonstração
+```yaml
+path: dataset
+train: train/images
+val: valid/images
+test: test/images
+```
 
-O repositório inclui os arquivos usados na demonstração:
+## Notebook
 
-- `models/best.pt`: pesos treinados;
-- `amostras/video_ponto_onibus.mp4`: vídeo original;
-- `saidas/demo.mp4`: vídeo processado com caixas e painel;
-- `saidas/contagens.csv`: contagens geradas pela inferência;
-- `docs/metricas/`: curvas, matriz de confusão, rótulos e previsões para o relatório.
+O notebook de avaliação está em `notebook/execucao_colab.ipynb`. Apesar do nome histórico do arquivo, ele também pode ser executado localmente. Abra o Jupyter a partir da raiz do projeto:
 
-O vídeo processado tem aproximadamente 16 segundos, resolução 1920×1080 e mostra detecções de ônibus e pessoas, contagem no painel, FPS e anonimização.
+```bash
+jupyter notebook notebook/execucao_colab.ipynb
+```
 
-## Resultados
+O notebook usa `PROJETO = Path.cwd()`. Por isso, não utiliza `/content`, Google Drive ou caminhos fixos de outro computador.
 
-Preencha esta tabela com os valores reais gerados pelo notebook:
+## Métricas finais
+
+A avaliação reproduzida com `models/best.pt` no conjunto `test` apresentou:
 
 | Avaliação | Precisão | Recall | mAP50 | mAP50-95 |
 |---|---:|---:|---:|---:|
-| `best.pt` — avaliação final | 62,99% | 60,21% | 68,41% | 38,92% |
+| `best.pt` — conjunto `test` | 62,99% | 60,21% | 68,41% | 38,92% |
 
-* Avaliação realizada no conjunto test
+A precisão indica a proporção das detecções realizadas que estavam corretas. O recall indica a proporção dos objetos anotados que foram encontrados. O mAP50 utiliza IoU de 0,50. O mAP50-95 é mais rigoroso porque calcula a média em vários limiares de IoU.
 
-### Interpretação das métricas
+## Dataset
 
-Na avaliação informada para o `best.pt`, o modelo alcançou 77,67% de precisão, 79,01% de recall, 82,97% de mAP50 e 56,84% de mAP50-95. A precisão indica a proporção das detecções realizadas que estavam corretas; o recall indica a proporção dos objetos anotados que foram encontrados. O mAP50 usa uma tolerância de IoU de 0,50, enquanto o mAP50-95 é mais rigoroso por calcular a média em várias tolerâncias. Ao finalizar o relatório, informe se essa avaliação foi realizada no conjunto `test` ou `val`.
+O dataset possui 227 imagens: 170 de treino, 31 de validação e 26 de teste. A fonte declarada é o Roboflow Universe, com licença indicada como CC BY 4.0:
+
+<https://universe.roboflow.com/cssio-fiap/deteccaoprojetotransporteclima>
+
+## Artefatos e limitações
+
+O repositório contém o modelo treinado, o vídeo original, o CSV de contagens e o relatório final. O vídeo processado pode ser gerado novamente com o comando de inferência acima.
+
+O dataset é pequeno para um sistema de produção. Oclusão, baixa iluminação e objetos pequenos podem causar erros. Guarda-chuva é apenas um indício de chuva, pois também pode ser utilizado contra o sol. O modelo não identifica pessoas; ele detecta e conta objetos. A opção `--anonimizar` pixeliza a região superior das pessoas antes da gravação.
 
 ## Privacidade
 
-O sistema não identifica pessoas; ele detecta e conta objetos. A opção `--anonimizar` pixeliza a região superior das pessoas antes de exibir ou gravar. Não publique imagens com rostos identificáveis sem autorização.
-
-## Limitações
-
-- o dataset é pequeno para um sistema robusto de produção;
-- as imagens podem não representar todos os pontos de ônibus de São Paulo;
-- objetos pequenos, oclusão, baixa iluminação e sobreposição podem causar erros;
-- guarda-chuva é apenas um indício de chuva, pois também pode ser usado contra o sol;
-- a classe `ponto_de_onibus` não foi treinada por falta de exemplos consistentes;
-- as métricas devem ser interpretadas como prova de conceito.
-
-## Como executar pelo GitHub no Google Colab
-
-### 1. Baixar o projeto
-
-Baixe o repositório pelo GitHub em **Code > Download ZIP** e extraia o arquivo. A pasta extraída deve se chamar:
-
-```text
-ONIBUS_CHUVA_SP
-```
-
-### 2. Enviar a pasta para o Colab
-
-Abra o Google Colab, crie um notebook e envie a pasta `ONIBUS_CHUVA_SP` para o diretório `/content`. A estrutura esperada é:
-
-```text
-/content/ONIBUS_CHUVA_SP/
-├── dataset/
-├── docs/
-├── models/
-├── notebook/
-├── saídas/
-├── src/
-├── amostras/
-└── README.md
-```
-
-### 3. Abrir o notebook de avaliação
-
-Abra no Colab o arquivo:
-
-```text
-/content/ONIBUS_CHUVA_SP/notebook/avaliacao_execucao_colab.ipynb
-```
-
-Esse notebook contém somente células de código. Execute as células de cima para baixo. Ele instala as dependências, carrega `models/best.pt`, avalia o modelo, executa o vídeo e exibe o CSV gerado.
-
-### 4. Executar a demonstração
-
-Para gerar o vídeo processado, use o notebook:
-
-```text
-/content/ONIBUS_CHUVA_SP/notebook/demo_colab_onibus_chuva.ipynb
-```
-
-O notebook usa o vídeo:
-
-```text
-/content/ONIBUS_CHUVA_SP/amostras/video_ponto_onibus.mp4
-```
-
-E salva os resultados em:
-
-```text
-/content/ONIBUS_CHUVA_SP/saídas/
-```
-
-Os arquivos gerados são:
-
-```text
-avaliacao_demo.mp4
-demo_colab.mp4
-avaliacao_contagens.csv
-contagens_colab.csv
-```
-
-### 5. Executar manualmente pelo código
-
-Se necessário, também é possível executar a inferência em uma célula do Colab:
-
-```python
-!pip install -q ultralytics opencv-python-headless pandas pyyaml
-
-!python /content/ONIBUS_CHUVA_SP/src/detectar_tempo_real.py \\
-  --pesos /content/ONIBUS_CHUVA_SP/models/best.pt \\
-  --fonte /content/ONIBUS_CHUVA_SP/amostras/video_ponto_onibus.mp4 \\
-  --anonimizar \\
-  --sem-janela \\
-  --salvar-video /content/ONIBUS_CHUVA_SP/saídas/demo_manual.mp4 \\
-  --csv /content/ONIBUS_CHUVA_SP/saídas/contagens_manual.csv
-```
-
-### 6. Avaliar o modelo sem treinar novamente
-
-O arquivo `models/best.pt` já contém o modelo treinado. Para avaliar o modelo no conjunto de teste:
-
-```python
-from ultralytics import YOLO
-
-modelo = YOLO('/content/ONIBUS_CHUVA_SP/models/best.pt')
-metricas = modelo.val(
-    data='/content/ONIBUS_CHUVA_SP/dataset/data.yaml',
-    split='test',
-    imgsz=640,
-    plots=True
-)
-
-print(f'Precisão: {metricas.box.mp * 100:.2f}%')
-print(f'Recall: {metricas.box.mr * 100:.2f}%')
-print(f'mAP50: {metricas.box.map50 * 100:.2f}%')
-print(f'mAP50-95: {metricas.box.map * 100:.2f}%')
-```
-
-### 7. Onde ficam os resultados
-
-Os arquivos principais da entrega ficam em:
-
-```text
-models/best.pt                         modelo treinado
-dataset/                               imagens e anotações
-docs/metricas/                         gráficos e imagens do relatório
-saídas/                                vídeos e CSVs gerados
-notebook/avaliacao_execucao_colab.ipynb notebook somente com código
-```
+Não publique imagens com rostos identificáveis sem autorização. O modelo foi desenvolvido como prova de conceito acadêmica.
