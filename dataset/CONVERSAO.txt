@@ -1,9 +1,0 @@
-Dataset preparado para o projeto Onibus & Chuva SP.
-
-Alteracoes realizadas:
-- ordem das classes padronizada para: onibus, pessoa, guarda_chuva, cadeira_de_rodas;
-- anotações poligonais convertidas para caixas delimitadoras YOLO;
-- estrutura train/valid/test preservada;
-- data.yaml refeito para treinamento de detecção.
-
-A conversao geometrica deve ser revisada visualmente antes da entrega final.
