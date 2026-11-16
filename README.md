@@ -152,6 +152,8 @@ Preencha esta tabela com os valores reais gerados pelo notebook:
 |---|---:|---:|---:|---:|
 | `best.pt` — avaliação final | 62,99% | 60,21% | 68,41% | 38,92% |
 
+* Avaliação realizada no conjunto test
+
 ### Interpretação das métricas
 
 Na avaliação informada para o `best.pt`, o modelo alcançou 77,67% de precisão, 79,01% de recall, 82,97% de mAP50 e 56,84% de mAP50-95. A precisão indica a proporção das detecções realizadas que estavam corretas; o recall indica a proporção dos objetos anotados que foram encontrados. O mAP50 usa uma tolerância de IoU de 0,50, enquanto o mAP50-95 é mais rigoroso por calcular a média em várias tolerâncias. Ao finalizar o relatório, informe se essa avaliação foi realizada no conjunto `test` ou `val`.
